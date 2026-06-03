@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Calendar – Clear Way Power Washing</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="admin-page">
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">💧</span>
+        <span>Clear Way <span class="accent">Admin</span></span>
+      </div>
+      <h2>Admin Access</h2>
+      <p class="login-note">This area is restricted to authorized personnel only.</p>
+      <div class="form-group">
+        <label for="adminEmail">Email Address</label>
+        <input type="email" id="adminEmail" placeholder="Enter your admin email" />
+      </div>
+      <div class="form-group">
+        <label for="adminPin">PIN</label>
+        <input type="password" id="adminPin" placeholder="Enter your PIN" maxlength="6" />
+      </div>
+      <div id="loginError" class="login-error hidden">Incorrect email or PIN.</div>
+      <button class="btn-submit" onclick="handleLogin()">Log In</button>
+      <a href="index.html" class="back-link">← Back to website</a>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminDashboard" class="hidden admin-dashboard">
+
+    <div class="admin-navbar">
+      <div class="nav-inner">
+        <div class="logo">
+          <span class="logo-icon">💧</span>
+          <span class="logo-text">Clear Way <span class="accent">Admin</span></span>
+        </div>
+        <div class="admin-nav-right">
+          <span id="loggedInAs" class="logged-in-as"></span>
+          <button class="btn-logout" onclick="handleLogout()">Log Out</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-body container">
+
+      <div class="admin-header">
+        <h1>Booking Calendar</h1>
+        <p>View, edit, and manage all customer appointments.</p>
+      </div>
+
+      <!-- CALENDAR NAV -->
+      <div class="cal-nav">
+        <button class="cal-nav-btn" onclick="prevMonth()">&#8592; Prev</button>
+        <h2 id="calMonthYear" class="cal-month-title"></h2>
+        <button class="cal-nav-btn" onclick="nextMonth()">Next &#8594;</button>
+      </div>
+
+      <!-- CALENDAR GRID -->
+      <div class="calendar-grid" id="calendarGrid"></div>
+
+      <!-- BOOKINGS LIST -->
+      <div class="bookings-section">
+        <h2 class="bookings-title">All Bookings <span id="bookingCount" class="booking-count">0</span></h2>
+        <div id="bookingsList" class="bookings-list">
+          <p class="no-bookings">No bookings yet.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- EDIT MODAL -->
+  <div id="editModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3>Edit Appointment</h3>
+      <input type="hidden" id="editId" />
+      <div class="form-group">
+        <label>Customer Name</label>
+        <input type="text" id="editName" />
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="editEmail" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="editDate" />
+        </div>
+        <div class="form-group">
+          <label>Time</label>
+          <select id="editTime">
+            <option value="08:00">8:00 AM</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="12:00">12:00 PM</option>
+            <option value="13:00">1:00 PM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+            <option value="17:00">5:00 PM</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="editNotes" rows="3"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+        <button class="btn-delete" onclick="deleteBooking()">Delete</button>
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
