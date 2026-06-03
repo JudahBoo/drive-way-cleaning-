@@ -1,52 +1,48 @@
-// Shared booking storage helpers
-const BOOKINGS_KEY = 'clearway_bookings';
-
-function getBookings() {
-  try {
-    return JSON.parse(localStorage.getItem(BOOKINGS_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveBookings(bookings) {
-  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
-}
-
-function addBooking(booking) {
-  const bookings = getBookings();
-  booking.id = Date.now().toString();
-  booking.createdAt = new Date().toISOString();
-  bookings.push(booking);
-  saveBookings(bookings);
-  return booking;
-}
-
 // ── BOOKING FORM (index.html) ──────────────────────────────────────────────
 const bookingForm = document.getElementById('bookingForm');
+
 if (bookingForm) {
-  // Set min date to today
   const prefDate = document.getElementById('prefDate');
   if (prefDate) {
-    const today = new Date();
-    prefDate.min = today.toISOString().split('T')[0];
+    prefDate.min = new Date().toISOString().split('T')[0];
   }
 
-  bookingForm.addEventListener('submit', function (e) {
+  bookingForm.addEventListener('submit', async function (e) {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const name     = document.getElementById('name').value.trim();
-    const email    = document.getElementById('email').value.trim();
-    const date     = document.getElementById('prefDate').value;
-    const time     = document.getElementById('prefTime').value;
-    const notes    = document.getElementById('notes').value.trim();
+    const submitBtn = bookingForm.querySelector('.btn-submit');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Booking…';
 
-    addBooking({ name, email, date, time, notes });
+    const name  = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const date  = document.getElementById('prefDate').value;
+    const time  = document.getElementById('prefTime').value;
+    const notes = document.getElementById('notes').value.trim();
 
-    bookingForm.classList.add('hidden');
-    document.getElementById('form-success').classList.remove('hidden');
-    document.getElementById('form-success').scrollIntoView({ behavior: 'smooth' });
+    try {
+      const url = `${SCRIPT_URL}?action=add` +
+        `&name=${encodeURIComponent(name)}` +
+        `&email=${encodeURIComponent(email)}` +
+        `&date=${encodeURIComponent(date)}` +
+        `&time=${encodeURIComponent(time)}` +
+        `&notes=${encodeURIComponent(notes)}`;
+
+      const res  = await fetch(url);
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      bookingForm.classList.add('hidden');
+      document.getElementById('form-success').classList.remove('hidden');
+      document.getElementById('form-success').scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Book My Cleaning';
+      alert('Something went wrong. Please try again.');
+      console.error(err);
+    }
   });
 }
 
@@ -58,18 +54,17 @@ function validateForm() {
   const date  = document.getElementById('prefDate');
   const time  = document.getElementById('prefTime');
 
-  document.getElementById('nameError').textContent  = '';
-  document.getElementById('emailError').textContent = '';
-  document.getElementById('dateError').textContent  = '';
-  document.getElementById('timeError').textContent  = '';
+  ['nameError','emailError','dateError','timeError'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
 
   if (!name.value.trim()) {
     document.getElementById('nameError').textContent = 'Please enter your name.';
     valid = false;
   }
 
-  const emailVal = email.value.trim();
-  if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+  const ev = email.value.trim();
+  if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) {
     document.getElementById('emailError').textContent = 'Please enter a valid email.';
     valid = false;
   }
@@ -87,17 +82,13 @@ function validateForm() {
   return valid;
 }
 
-// Smooth navbar link active state on scroll
+// Navbar active highlight on scroll
 const sections = document.querySelectorAll('section[id]');
 window.addEventListener('scroll', () => {
   const y = window.scrollY + 80;
   sections.forEach(sec => {
     const link = document.querySelector(`.nav-links a[href="#${sec.id}"]`);
     if (!link) return;
-    if (sec.offsetTop <= y && sec.offsetTop + sec.offsetHeight > y) {
-      link.style.color = '#ffffff';
-    } else {
-      link.style.color = '';
-    }
+    link.style.color = (sec.offsetTop <= y && sec.offsetTop + sec.offsetHeight > y) ? '#fff' : '';
   });
 });
