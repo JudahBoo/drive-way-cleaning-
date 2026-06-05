@@ -75,11 +75,37 @@ async function fetchBookings() {
   try {
     const res  = await fetch(`${SCRIPT_URL}?action=getAll`);
     const data = await res.json();
-    bookingsCache = Array.isArray(data) ? data : [];
+    bookingsCache = Array.isArray(data) ? data.map(normalizeBooking) : [];
   } catch (e) {
     bookingsCache = [];
     if (list) list.innerHTML = '<p class="no-bookings">Could not load bookings. Check your Script URL in config.js.</p>';
   }
+}
+
+// Normalize a booking so date is always YYYY-MM-DD and time is always HH:MM
+function normalizeBooking(b) {
+  return { ...b, date: normalizeDate(b.date), time: normalizeTime(b.time) };
+}
+
+function normalizeDate(val) {
+  if (!val) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+  const dt = new Date(val);
+  if (!isNaN(dt)) {
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, '0');
+    const d = String(dt.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+  return val;
+}
+
+function normalizeTime(val) {
+  if (!val) return '';
+  if (/^\d{2}:\d{2}$/.test(val)) return val;
+  const match = val.match(/(\d{1,2}):(\d{2})/);
+  if (match) return `${String(parseInt(match[1])).padStart(2,'0')}:${match[2]}`;
+  return val;
 }
 
 // ── CALENDAR ──────────────────────────────────────────────────────────────
