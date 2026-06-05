@@ -104,9 +104,9 @@ function normalizeDate(val) {
   const slashMatch = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (slashMatch) return `${slashMatch[3]}-${String(slashMatch[1]).padStart(2,'0')}-${String(slashMatch[2]).padStart(2,'0')}`;
 
-  // Fallback: use UTC to avoid timezone shift
+  // Fallback: use local time
   const dt = new Date(val);
-  if (!isNaN(dt)) return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}-${String(dt.getUTCDate()).padStart(2,'0')}`;
+  if (!isNaN(dt)) return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
 
   return val;
 }
@@ -192,7 +192,9 @@ function renderCalendar() {
   }
 }
 
-function formatDate(y, m, d) { return new Date(y, m, d).toISOString().split('T')[0]; }
+function formatDate(y, m, d) {
+  return `${y}-${String(m + 1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
 
 function formatTime(t) {
   if (!t) return '';
