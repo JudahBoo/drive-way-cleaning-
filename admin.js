@@ -89,14 +89,25 @@ function normalizeBooking(b) {
 
 function normalizeDate(val) {
   if (!val) return '';
+  // Already YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
-  const dt = new Date(val);
-  if (!isNaN(dt)) {
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth() + 1).padStart(2, '0');
-    const d = String(dt.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+
+  // Handle "Thu Jun 05 2026 ..." format from Google Sheets
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const longMatch = val.match(/(\w{3})\s+(\d{1,2})\s+(\d{4})/);
+  if (longMatch) {
+    const mo = monthNames.indexOf(longMatch[1]) + 1;
+    if (mo > 0) return `${longMatch[3]}-${String(mo).padStart(2,'0')}-${String(parseInt(longMatch[2])).padStart(2,'0')}`;
   }
+
+  // Handle MM/DD/YYYY
+  const slashMatch = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slashMatch) return `${slashMatch[3]}-${String(slashMatch[1]).padStart(2,'0')}-${String(slashMatch[2]).padStart(2,'0')}`;
+
+  // Fallback: use UTC to avoid timezone shift
+  const dt = new Date(val);
+  if (!isNaN(dt)) return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,'0')}-${String(dt.getUTCDate()).padStart(2,'0')}`;
+
   return val;
 }
 

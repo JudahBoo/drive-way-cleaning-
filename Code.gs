@@ -36,7 +36,23 @@ function getAllBookings() {
   for (var i = 1; i < data.length; i++) {
     var obj = {};
     for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = String(data[i][j]);
+      var val = data[i][j];
+      if (val instanceof Date) {
+        if (headers[j] === 'date') {
+          var y = val.getFullYear();
+          var mo = String(val.getMonth() + 1); if (mo.length < 2) mo = '0' + mo;
+          var dy = String(val.getDate()); if (dy.length < 2) dy = '0' + dy;
+          obj[headers[j]] = y + '-' + mo + '-' + dy;
+        } else if (headers[j] === 'time') {
+          var h = String(val.getHours()); if (h.length < 2) h = '0' + h;
+          var mn = String(val.getMinutes()); if (mn.length < 2) mn = '0' + mn;
+          obj[headers[j]] = h + ':' + mn;
+        } else {
+          obj[headers[j]] = val.toISOString();
+        }
+      } else {
+        obj[headers[j]] = String(val);
+      }
     }
     bookings.push(obj);
   }
