@@ -64,8 +64,10 @@ function validateForm() {
   }
 
   const ev = email.value.trim();
-  if (!ev || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev)) {
-    document.getElementById('emailError').textContent = 'Please enter a valid email.';
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ev);
+  const isPhone = /^[\d\s\-\+\(\)]{7,15}$/.test(ev);
+  if (!ev || (!isEmail && !isPhone)) {
+    document.getElementById('emailError').textContent = 'Please enter a valid email or phone number.';
     valid = false;
   }
 
